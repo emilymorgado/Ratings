@@ -31,6 +31,39 @@ class User(db.Model):
 
 # Put your Movie and Rating model classes here.
 
+class Movie(db.Model):
+    """Movie in Ratings website"""
+
+    __tablename__ = "movies"
+
+    movie_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    title = db.Column(db.String(75), nullable=False)
+    released_at = db.Column(db.DateTime, nullable=True)
+    imdb_url = db.Column(db.String(100), nullable=True)
+
+
+    def __repr__(self):
+        """Provide helpful representation when printed"""
+
+        return "<Movie movie_id={} title={}>".format(self.movie_id, self.title)
+
+
+class Rating(db.Model):
+    """Rating in ratings website"""
+
+    __tablename__ = "ratings"
+
+    rating_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    movie_id = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
+    score = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        """Provide helpful representation when printed"""
+
+        return "<Rating rating_id={} movie_id={}>".format(self.rating_id, self.movie_id)
+
+
 
 ##############################################################################
 # Helper functions
