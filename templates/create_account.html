@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h3>Create an Account:</h3>
+<form action ="/new_account" method="POST">
+  <label>Email: <input type="text" name="email"></label>
+  <br><br>
+  <label>Password: <input type="password" name="password"></label>
+  <br><br>
+  <input type="submit" value="Create Account">
+</form>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+{% endblock %}
