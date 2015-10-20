@@ -1,5 +1,10 @@
-{% extends 'base.html' %}
-{% block content %}
+<!doctype html>
+<html>
+<head>
+  <title>Ratings</title>
+</head>
+
+<body>
 
 <h3>Login:</h3>
 <form action ="/check-login" method="POST">
@@ -9,7 +14,7 @@
   <br><br>
   <input type="submit" value="Submit">
 </form>
-
+<p>Don't have an account yet? <a href="/sign-up-form">Create an Account</a>.</p>
 {% with messages = get_flashed_messages() %}
   {% if messages %}
     <ul class=flashes>
@@ -20,4 +25,5 @@
   {% endif %}
 {% endwith %}
 
-{% endblock %}
+</body>
+</html>

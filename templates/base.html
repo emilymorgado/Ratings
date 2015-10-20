@@ -7,7 +7,18 @@
 <body>
   Ratings
   <hr>
-  <form action='/logout'><input type="submit" value="Log Out"></form>
+  {% if session.get("user_email") %}
+  <!--if user_email (from server.py) is in the session, show a logout button-->
+  <form id="logout" action="/logout">
+    <input type="submit" value="Log Out">
+  </form>
+  {% else %}
+  <form id="login" action="/login">
+    <input type="submit" value="Login">
+  </form>
+  <!--else, show a login button-->
+  {% endif %}
+
   {% block content %} put your content here {% endblock %}
 
 </body>

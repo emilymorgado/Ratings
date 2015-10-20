@@ -35,12 +35,14 @@ def user_list():
 
 @app.route("/sign-up-form")
 def show_signup_form():
+    """Show sign up form"""
 
     return render_template("create_account.html")
 
 
 @app.route("/new-account", methods=["POST"])
 def check_new_account():
+    """Check if new account already exsists and has password"""
 
     email = request.form.get("email")
     password = request.form.get("password")
@@ -65,6 +67,7 @@ def check_new_account():
 
 @app.route("/check-login", methods=["POST"])
 def check_login():
+    """check that login info is correct"""
 
     email = request.form.get("email")
     password = request.form.get("password")
@@ -84,12 +87,14 @@ def check_login():
 
 @app.route("/login")
 def login_page():
+    """log in user"""
 
     return render_template("login.html")
 
 
 @app.route("/logout")
 def logout():
+    """log user out"""
     session.clear()
     flash("You've been logged out!")
     return redirect('/')
