@@ -39,7 +39,7 @@ def show_signup_form():
     return render_template("create_account.html")
 
 
-@app.route("/new_account", methods=["POST"])
+@app.route("/new-account", methods=["POST"])
 def check_new_account():
 
     email = request.form.get("email")
@@ -52,6 +52,8 @@ def check_new_account():
         user = User(email=email, password=password)
         db.session.add(user)
         db.session.commit()
+        session["user_email"] = email
+        print session["user_email"]
         return redirect('/')
     elif existing_account:
         flash("That account already exists")
@@ -61,6 +63,36 @@ def check_new_account():
         return redirect('/sign-up-form')
 
 
+@app.route("/check-login", methods=["POST"])
+def check_login():
+
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    existing_account = User.query.filter(User.email == email, 
+                                         User.password == password).first()
+
+    if existing_account:
+        flash("You have been logged in.")
+        session["user_email"] = email
+        print session["user_email"]
+        return redirect('/')
+    else:
+        flash("Email or password invalid.")
+        return redirect('/login')
+
+
+@app.route("/login")
+def login_page():
+
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("You've been logged out!")
+    return redirect('/')
 
 
 
