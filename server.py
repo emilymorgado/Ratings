@@ -100,6 +100,12 @@ def logout():
     return redirect('/')
 
 
+@app.route("/users/<int:user_id>")
+def make_user_page(user_id):
+    user_info = User.query.get(user_id);
+    user_ratings = db.session.query(Rating.score, Movie.title).join(Movie).filter(Rating.user_id == user_id).all()
+    return render_template("user_profile.html", user_info=user_info, user_ratings=user_ratings)
+
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the point
