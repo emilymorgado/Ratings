@@ -7,9 +7,9 @@
         <li> Zipcode: {{ user_info.zipcode }}</li>
     </ul>
     <ul>
-        {% for movie in user_ratings %}
+        {% for rating, title in user_ratings %}
         <li>
-            {{ movie[1] }}: {{ movie[0] }}
+            {{ title }}: {{ rating }}
         </li>
         {% endfor %}
     </ul>
