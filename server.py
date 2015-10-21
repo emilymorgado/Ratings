@@ -79,7 +79,8 @@ def check_login():
         flash("You have been logged in.")
         session["user_email"] = email
         print session["user_email"]
-        return redirect('/')
+        url = '/users/' + str(existing_account.user_id)
+        return redirect(url)
     else:
         flash("Email or password invalid.")
         return redirect('/login')
@@ -102,6 +103,7 @@ def logout():
 
 @app.route("/users/<int:user_id>")
 def make_user_page(user_id):
+    """generates user profile page"""
     user_info = User.query.get(user_id);
     user_ratings = db.session.query(Rating.score, Movie.title).join(Movie).filter(Rating.user_id == user_id).all()
     return render_template("user_profile.html", user_info=user_info, user_ratings=user_ratings)
