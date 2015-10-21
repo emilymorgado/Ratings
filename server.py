@@ -4,6 +4,7 @@ from jinja2 import StrictUndefined
 
 from flask import Flask, render_template, redirect, request, flash, session
 from flask_debugtoolbar import DebugToolbarExtension
+from datetime import datetime
 
 from model import connect_to_db, db, User, Rating, Movie
 
@@ -107,6 +108,49 @@ def make_user_page(user_id):
     user_info = User.query.get(user_id);
     user_ratings = db.session.query(Rating.score, Movie.title).join(Movie).filter(Rating.user_id == user_id).all()
     return render_template("user_profile.html", user_info=user_info, user_ratings=user_ratings)
+
+
+@app.route('/movies')
+def movie_list():
+    """Show list of movies."""
+
+    movies = Movie.query.order_by(Movie.title).all()
+    return render_template("movie_list.html", movies=movies)
+
+@app.route('/movies/<int:movie_id>')
+def make_movie_page(movie_id):
+    """generates movie info page"""
+
+    movie_info = Movie.query.get(movie_id);
+    movie_release = movie_info.released_at
+    movie_release = movie_release.strftime("%A, %B %d, %Y")
+    movie_ratings = db.session.query(Rating.score, User.user_id).join(User).filter(Rating.movie_id == movie_id).all()
+    if session.get("user_email"):
+        email = session["user_email"]
+        rated = db.session.query(Rating.score).join(User).filter(Rating.movie_id == movie_id, User.email == email).first()
+    else:
+        rated = False
+    return render_template("movie_profile.html", movie_release=movie_release, movie_info=movie_info, movie_ratings=movie_ratings, rated=rated)
+
+
+@app.route('/movies/<int:movie_id>/rate', methods=["GET"])
+def rate_movie(movie_id):
+    """adds rating to database"""
+
+    score = request.args.get('score')
+    score = int(score)
+
+    user = User.query.filter(User.email == session["user_email"]).first()
+    user_id = user.user_id
+
+    rating = Rating(movie_id=movie_id, user_id=user_id, score=score)
+    print rating
+    db.session.add(rating)
+    db.session.commit()
+
+    url = "/movies/" + str(movie_id)
+    return redirect(url)
+
 
 
 if __name__ == "__main__":

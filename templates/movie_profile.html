@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <h2>{{ movie_info.title }}</h2>
+    <ul>
+        <li> Release Date: {{ movie_release }}</li>
+        <li> <a href={{ movie_info.imdb_url }}>IMDB Page</a></li>
+    </ul>
+        {% if session.get("user_email") %}
+            {% if rated %}
+            <p>You rated this movie: {{ rated[0] }}</p>
+            <form id="rerate" action="/movies/{{ movie_info.movie_id }}/rate">
+                <label> Update Movie Score: 
+                    <SELECT name="score">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </SELECT> 
+                    <input type="submit" value="Submit">
+                </label>
+            </form>
+
+            {% else %}
+            <form id="rate" action="/movies/{{ movie_info.movie_id }}/rate">
+                <label> Rate This Movie: 
+                    <SELECT name="score">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </SELECT> 
+                    <input type="submit" value="Submit">
+                </label>
+            </form>
+            {% endif %}
+        {% else %}
+        <p>You need to log in to rate this movie</p>
+        {% endif %}
+
+        {% if movie_ratings %}
+        <h3>Movie Ratings by User</h3>
+        {% endif %}
+    <ul>
+        {% for score, user_id in movie_ratings %}
+        <li>
+            User {{ user_id }}: {{ score }}
+        </li>
+        {% endfor %}
+    </ul>
+
+{% endblock %}
