@@ -121,32 +121,54 @@ def movie_list():
 def make_movie_page(movie_id):
     """generates movie info page"""
 
+    # this grabs the row from the Movie Table and the released_at field
     movie_info = Movie.query.get(movie_id);
     movie_release = movie_info.released_at
     movie_release = movie_release.strftime("%A, %B %d, %Y")
+    # movie_ratings = the score and user_id for the movie_id
     movie_ratings = db.session.query(Rating.score, User.user_id).join(User).filter(Rating.movie_id == movie_id).all()
+    # if the session has a user, grab the user's score from the Rating table
     if session.get("user_email"):
         email = session["user_email"]
-        rated = db.session.query(Rating.score).join(User).filter(Rating.movie_id == movie_id, User.email == email).first()
+        rated = (db.session.query(Rating.score).join(User)
+                 .filter(Rating.movie_id == movie_id, User.email == email)
+                 .first())
+    # else it hasn't been rated
     else:
         rated = False
-    return render_template("movie_profile.html", movie_release=movie_release, movie_info=movie_info, movie_ratings=movie_ratings, rated=rated)
+    return render_template("movie_profile.html", movie_release=movie_release, 
+                                                 movie_info=movie_info, 
+                                                 movie_ratings=movie_ratings, 
+                                                 rated=rated)
 
 
 @app.route('/movies/<int:movie_id>/rate', methods=["GET"])
 def rate_movie(movie_id):
     """adds rating to database"""
 
+    # score is taken from the form and turned into an int
     score = request.args.get('score')
     score = int(score)
 
+    # this grabs the email from the User table that matches the email from the Flask session
+    # this binds user_id to the user_id from the User table
     user = User.query.filter(User.email == session["user_email"]).first()
     user_id = user.user_id
 
-    rating = Rating(movie_id=movie_id, user_id=user_id, score=score)
-    print rating
-    db.session.add(rating)
-    db.session.commit()
+    # this grabs the current score from the Rating table and binds it to user_score
+    user_score = (db.session.query(Rating.score).filter(Rating.user_id == user_id, 
+                                                Rating.movie_id == movie_id).first())
+
+    # if the user_score (from the Rating Table) matches the input score, do nothing
+    if user_score:
+        db.session.query(Rating).update({Rating.score: score})
+        db.session.commit()
+        # This adds a new rating to the Rating table in the db (score comes from the form)
+    else:
+        rating = Rating(movie_id=movie_id, user_id=user_id, score=score)
+        print rating
+        db.session.add(rating)
+        db.session.commit()
 
     url = "/movies/" + str(movie_id)
     return redirect(url)
