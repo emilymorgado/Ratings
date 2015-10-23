@@ -6,25 +6,21 @@
         <li> Release Date: {{ movie_release }}</li>
         <li> <a href={{ movie_info.imdb_url }}>IMDB Page</a></li>
     </ul>
+        <p> Average Rating: {{ average }}</p>
         {% if session.get("user_email") %}
+            {% if beratement %}
+            <h4>{{ beratement }}</h4>
+            {%  endif %}
             {% if rated %}
             <p>You rated this movie: {{ rated[0] }}</p>
             <form id="rerate" action="/movies/{{ movie_info.movie_id }}/rate">
-                <label> Update Movie Score: 
-                    <SELECT name="score">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                    </SELECT> 
-                    <input type="submit" value="Submit">
-                </label>
-            </form>
-
+                <label> Update Movie Score:
             {% else %}
+            <p> We predict you will rate this movie: {{ prediction }}</p>
             <form id="rate" action="/movies/{{ movie_info.movie_id }}/rate">
                 <label> Rate This Movie: 
+            {% endif %}
+
                     <SELECT name="score">
                         <option value="1">1</option>
                         <option value="2">2</option>
@@ -35,7 +31,6 @@
                     <input type="submit" value="Submit">
                 </label>
             </form>
-            {% endif %}
         {% else %}
         <p>You need to log in to rate this movie</p>
         {% endif %}

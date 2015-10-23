@@ -77,7 +77,7 @@ def load_ratings():
         row = row.rstrip()
         data = row.split("\t")
         user_id, movie_id, score = data[0:3]
-        # print "USER ID: {}. MOVIE ID: {}. SCORE: {}".format(user_id, movie_id, score)
+        print "USER ID: {}. MOVIE ID: {}. SCORE: {}".format(user_id, movie_id, score)
 
         rating = Rating(user_id=user_id, movie_id=movie_id, 
                         score=score)

@@ -126,20 +126,73 @@ def make_movie_page(movie_id):
     movie_release = movie_info.released_at
     movie_release = movie_release.strftime("%A, %B %d, %Y")
     # movie_ratings = the score and user_id for the movie_id
-    movie_ratings = db.session.query(Rating.score, User.user_id).join(User).filter(Rating.movie_id == movie_id).all()
+    movie_ratings = db.session.query(Rating.score, Rating.user_id).filter(Rating.movie_id == movie_id).all()
     # if the session has a user, grab the user's score from the Rating table
+    scores = [score for score, user_id in movie_ratings]
+    avg_rating = float(sum(scores))/len(scores)
+    avg_rating = "{:.2f}".format(avg_rating)
+
+
     if session.get("user_email"):
         email = session["user_email"]
         rated = (db.session.query(Rating.score).join(User)
                  .filter(Rating.movie_id == movie_id, User.email == email)
                  .first())
-    # else it hasn't been rated
+        if rated:
+            effective_rating = rated[0]
+            prediction = False
+        else:
+            user = User.query.filter(User.email == email).first()
+            prediction = user.predict_rating(movie_info)
+            effective_rating = prediction
+        # else it hasn't been rated
+    #they are not logged in
     else:
         rated = False
+        prediction = False
+        effective_rating = False
+
+
+    the_eye = User.query.filter_by(email="the-eye@of-judgment.com").first()
+    eye_rating = Rating.query.filter(
+            Rating.user_id == the_eye.user_id, Rating.movie_id == movie_info.movie_id).first()
+
+    if eye_rating is None:
+        eye_rating = the_eye.predict_rating(movie_info)
+
+    else:
+        eye_rating = eye_rating.score
+
+    if eye_rating and effective_rating:
+        difference = abs(eye_rating - effective_rating)
+
+    else:
+        # We couldn't get an eye rating, so we'll skip difference
+        difference = None
+
+    BERATEMENT_MESSAGES = [
+           "I suppose you don't have such bad taste after all.",
+           "I regret every decision that I've ever made that has brought me" +
+               " to listen to your opinion.",
+           "Words fail me, as your taste in movies has clearly failed you.",
+           "That movie is great. For a clown to watch. Idiot.",
+           "Words cannot express the awfulness of your taste."
+       ]
+
+    if difference:
+        beratement = BERATEMENT_MESSAGES[int(difference)]
+
+    else:
+        beratement = None
+
+
     return render_template("movie_profile.html", movie_release=movie_release, 
                                                  movie_info=movie_info, 
                                                  movie_ratings=movie_ratings, 
-                                                 rated=rated)
+                                                 rated=rated,
+                                                 average=avg_rating,
+                                                 prediction=prediction,
+                                                 beratement=beratement)
 
 
 @app.route('/movies/<int:movie_id>/rate', methods=["GET"])
@@ -160,8 +213,10 @@ def rate_movie(movie_id):
                                                 Rating.movie_id == movie_id).first())
 
     # if the user_score (from the Rating Table) matches the input score, do nothing
+    #FIX THIS TO NOT REPLACE ALL THE DATABASE
     if user_score:
-        db.session.query(Rating).update({Rating.score: score})
+        db.session.query(Rating).filter(Rating.user_id == user_id, 
+                                        Rating.movie_id == movie_id).update({Rating.score: score})
         db.session.commit()
         # This adds a new rating to the Rating table in the db (score comes from the form)
     else:
