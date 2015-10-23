@@ -37,7 +37,7 @@ class User(db.Model):
         # other_ratings is a list of rating objects where the movie_id is our movie_id
 
         similarities = [
-            (self.similarity(r.user), r.score)
+            (self._similarity(r.user), r.score)
             # tuple with the value of calling similarity on self and the user associated with
             # a rating(r). We're doing this for each rating(r) in our list other_ratings
             for r in other_ratings
@@ -59,7 +59,7 @@ class User(db.Model):
 
         return (pos + neg)/float(denominator)
 
-    def similarity(self, other):
+    def _similarity(self, other):
         """Return Pearson rating for user compared to other user."""
 
         self_ratings = {}

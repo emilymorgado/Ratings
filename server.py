@@ -133,6 +133,7 @@ def make_movie_page(movie_id):
     avg_rating = "{:.2f}".format(avg_rating)
 
 
+    # TODO! We could change this to user_id
     if session.get("user_email"):
         email = session["user_email"]
         rated = (db.session.query(Rating.score).join(User)
